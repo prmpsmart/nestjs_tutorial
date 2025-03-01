@@ -1,0 +1,120 @@
+model User {
+    id             Int      @id @default(autoincrement())
+    username       String
+    email          String   @unique
+    passwordHash   String
+    profilePicture String?
+    bio            String?
+    stepsCount     Int      @default(0)
+    activeStatus   Boolean  @default(false)
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+
+    eventsCreated      Event[]   @relation("CreatedEvents")
+    eventsParticipated Event[]   @relation("ParticipatedEvents")
+    follows            Follow[]  @relation("Follows")
+    followers          Follow[]  @relation("Followers")
+    chatsSent          Chat[]    @relation("SentChats")
+    chatsReceived      Chat[]    @relation("ReceivedChats")
+    comments           Comment[]
+    geoDrops           GeoDrop[]
+    wallet             Wallet?
+    routes             Route[]
+
+    rankId Int?
+}
+
+model Event {
+    id          Int      @id @default(autoincrement())
+    name        String
+    description String
+    eventType   String
+    startDate   DateTime
+    endDate     DateTime
+    location    Json?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    organizerId Int
+    organizer   User @relation("CreatedEvents", fields: [organizerId], references: [id])
+
+    participants User[]    @relation("ParticipatedEvents")
+    comments     Comment[]
+}
+
+model Comment {
+    id        Int      @id @default(autoincrement())
+    content   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId    Int
+    user      User     @relation(fields: [userId], references: [id])
+
+    eventId Int? // This is optional because comments can also be for GeoDrops or Chats
+    event   Event? @relation(fields: [eventId], references: [id])
+}
+
+model Follow {
+    id         Int      @id @default(autoincrement())
+    followerId Int
+    followedId Int
+    followedAt DateTime @default(now())
+
+    follower User @relation("Follows", fields: [followerId], references: [id])
+    followed User @relation("Followers", fields: [followedId], references: [id])
+}
+
+model GeoDrop {
+    id           Int      @id @default(autoincrement())
+    userId       Int
+    user         User     @relation(fields: [userId], references: [id])
+    imageUrl     String?
+    voiceNoteUrl String?
+    textContent  String?
+    location     Json
+    timestamp    DateTime @default(now())
+}
+
+model Wallet {
+    id           Int           @id @default(autoincrement())
+    userId       Int           @unique
+    user         User          @relation(fields: [userId], references: [id])
+    balance      Int           @default(0)
+    transactions Transaction[]
+}
+
+model Transaction {
+    id           Int      @id @default(autoincrement())
+    walletId     Int
+    wallet       Wallet   @relation(fields: [walletId], references: [id])
+    amount       Int
+    type         String // e.g., "earned", "redeemed", "gifted"
+    timestamp    DateTime @default(now())
+    targetUserId Int? // Optional field for gift transactions
+}
+
+model Route {
+    id            Int      @id @default(autoincrement())
+    userId        Int
+    user          User     @relation(fields: [userId], references: [id])
+    startLocation Json
+    endLocation   Json
+    path          Json
+    totalDistance Float
+    duration      Int // duration in seconds
+    isCompleted   Boolean  @default(false)
+    timestamp     DateTime @default(now())
+}
+
+model Chat {
+    id             Int      @id @default(autoincrement())
+    senderId       Int
+    receiverId     Int
+    messageContent String
+    messageType    String // e.g., "text", "image", "voice"
+    timestamp      DateTime @default(now())
+    status         String // e.g., "sent", "delivered", "read"
+
+    sender   User @relation("SentChats", fields: [senderId], references: [id])
+    receiver User @relation("ReceivedChats", fields: [receiverId], references: [id])
+}
