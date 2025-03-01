@@ -1,172 +1,108 @@
-### Expanded Schema | Entities
+Sure! Here's a short and comprehensive explanation of every field in your models:
 
-#### **1. Users**
+### **User Model:**
+- `id`: Unique identifier for each user.
+- `username`: User’s chosen username.
+- `email`: User’s email, unique.
+- `passwordHash`: User’s hashed password.
+- `profilePicture`: Optional URL to the user's profile picture.
+- `bio`: Optional short description of the user.
+- `stepsCount`: Number of steps completed by the user.
+- `activeStatus`: Whether the user is active (true/false).
+- `createdAt`: Timestamp of when the user was created.
+- `updatedAt`: Timestamp of the last update.
+- `eventsCreated`: Events created by the user.
+- `eventsParticipated`: Events the user is part of.
+- `follows`: Users that this user follows.
+- `followers`: Users who follow this user.
+- `chatsSent`: Messages sent by the user.
+- `chatsReceived`: Messages received by the user.
+- `comments`: Comments made by the user.
+- `geoDrops`: GeoDrops created by the user.
+- `wallet`: User’s wallet, one-to-one relationship.
+- `routes`: Routes associated with the user.
+- `rankId`: Optional rank/level ID of the user.
 
-- **user_id** (Primary Key)
-- username
-- email
-- password_hash
-- profile_picture
-- bio
-- location (current location of the user)
-- date_joined
-- steps_count (total number of steps taken)
-- active_status (online/offline)
-- rank_id (Foreign Key - reference to the `Ranks` table)
-- follow_count
-- follower_count
-- social_links (links to other social media accounts)
+### **Event Model:**
+- `id`: Unique event identifier.
+- `name`: Name of the event.
+- `description`: Event's description.
+- `eventType`: Type of the event (e.g., "meeting", "workshop").
+- `startDate`: Event's start date and time.
+- `endDate`: Event's end date and time.
+- `location`: Event location (in JSON format).
+- `createdAt`: Timestamp when the event was created.
+- `updatedAt`: Timestamp of the last update.
+- `organizerId`: ID of the user organizing the event.
+- `organizer`: Reference to the user organizing the event.
+- `participants`: Users participating in the event.
+- `comments`: Comments related to the event.
 
-#### **2. Events**
+### **Comment Model:**
+- `id`: Unique identifier for the comment.
+- `content`: Content of the comment.
+- `createdAt`: Timestamp when the comment was created.
+- `updatedAt`: Timestamp when the comment was last updated.
+- `userId`: ID of the user who wrote the comment.
+- `user`: Reference to the user who wrote the comment.
+- `eventId`: Optional ID of the event the comment is related to.
+- `event`: Event the comment is associated with.
 
-- **event_id** (Primary Key)
-- name
-- description
-- event_type (challenge, solo trekking, co-trekking, etc.)
-- start_date
-- end_date
-- location (geolocation, such as latitude, longitude, or an address)
-- participants (array of user IDs or a join table between Users and Events for many-to-many relation)
-- organizer_user_id (Foreign Key - reference to the `Users` table)
-- status (active, completed, cancelled)
-- created_at
-- updated_at
-- challenge_type (optional; if the event is a challenge, specify the challenge type)
+### **Follow Model:**
+- `id`: Unique identifier for the follow relationship.
+- `followerId`: ID of the user following someone.
+- `followedId`: ID of the user being followed.
+- `followedAt`: Timestamp when the follow happened.
+- `follower`: Reference to the follower user.
+- `followed`: Reference to the followed user.
 
-#### **3. Steps**
+### **GeoDrop Model:**
+- `id`: Unique identifier for the GeoDrop.
+- `userId`: ID of the user who created the GeoDrop.
+- `user`: Reference to the user who created the GeoDrop.
+- `imageUrl`: Optional URL for an image in the GeoDrop.
+- `voiceNoteUrl`: Optional URL for a voice note in the GeoDrop.
+- `textContent`: Optional text content of the GeoDrop.
+- `location`: GeoDrop location in JSON format.
+- `timestamp`: Timestamp when the GeoDrop was created.
 
-- **step_id** (Primary Key)
-- user_id (Foreign Key - reference to the `Users` table)
-- timestamp
-- step_count (number of steps taken in a session)
-- location (geolocation, such as latitude and longitude)
-- distance (optional, calculated based on steps)
-- route_id (Foreign Key - reference to the `Routes` table for a specific user’s path)
+### **Wallet Model:**
+- `id`: Unique wallet identifier.
+- `userId`: ID of the user owning the wallet.
+- `user`: Reference to the user owning the wallet.
+- `balance`: Current balance in the wallet.
+- `transactions`: Transactions associated with the wallet.
 
-#### **4. Routes** (This entity tracks user routes)
+### **Transaction Model:**
+- `id`: Unique identifier for the transaction.
+- `walletId`: ID of the wallet the transaction is related to.
+- `wallet`: Reference to the wallet.
+- `amount`: Amount of money involved in the transaction.
+- `type`: Type of transaction (e.g., "earned", "redeemed").
+- `timestamp`: Timestamp when the transaction occurred.
+- `targetUserId`: Optional ID for the target user (if the transaction involves gifting).
 
-- **route_id** (Primary Key)
-- user_id (Foreign Key - reference to the `Users` table)
-- start_location (latitude, longitude)
-- end_location (latitude, longitude)
-- route_path (list of geolocation points marking the route)
-- total_distance
-- duration (time taken for the route)
-- timestamp
-- is_completed (Boolean)
+### **Route Model:**
+- `id`: Unique identifier for the route.
+- `userId`: ID of the user associated with the route.
+- `user`: Reference to the user.
+- `startLocation`: Starting point of the route in JSON format.
+- `endLocation`: Ending point of the route in JSON format.
+- `path`: Path of the route in JSON format.
+- `totalDistance`: Total distance of the route.
+- `duration`: Duration of the route in seconds.
+- `isCompleted`: Whether the route has been completed.
+- `timestamp`: Timestamp when the route was created.
 
-#### **5. Ranks**
+### **Chat Model:**
+- `id`: Unique identifier for the chat message.
+- `senderId`: ID of the user who sent the message.
+- `receiverId`: ID of the user receiving the message.
+- `messageContent`: Content of the message.
+- `messageType`: Type of message (e.g., "text", "image").
+- `timestamp`: Timestamp when the message was sent.
+- `status`: Status of the message (e.g., "sent", "delivered").
+- `sender`: Reference to the user who sent the message.
+- `receiver`: Reference to the user who received the message.
 
-- **rank_id** (Primary Key)
-- user_id (Foreign Key - reference to the `Users` table)
-- rank_type (e.g., “Beginner”, “Intermediate”, “Expert”)
-- rank_score (numeric value based on the user’s total steps, challenges completed, etc.)
-- date_achieved
-- level (optional: user’s progress level in rank)
-
-#### **6. Follows** (Users following other users)
-
-- **follow_id** (Primary Key)
-- follower_user_id (Foreign Key - reference to the `Users` table)
-- followed_user_id (Foreign Key - reference to the `Users` table)
-- followed_at (timestamp of when the user followed another)
-
-#### **7. Chats** (Messaging between users)
-
-- **chat_id** (Primary Key)
-- sender_user_id (Foreign Key - reference to the `Users` table)
-- receiver_user_id (Foreign Key - reference to the `Users` table)
-- message_content (text, voice note URL, or image URL)
-- message_type (text, image, voice note)
-- timestamp
-- status (sent, delivered, read)
-
-#### **8. Comments** (Users commenting on other users' activities or events)
-
-- **comment_id** (Primary Key)
-- user_id (Foreign Key - reference to the `Users` table)
-- target_id (Foreign Key - can be an Event or Geo-drop ID)
-- comment_content
-- timestamp
-- target_type (can be "event", "geo-drop", etc.)
-
-#### **9. Geo-drops**
-
-- **geo_drop_id** (Primary Key)
-- user_id (Foreign Key - reference to the `Users` table)
-- image_url (optional)
-- voice_note_url (optional)
-- text_content (optional)
-- gift (optional, reference to Wallets)
-- latitude (geolocation)
-- longitude (geolocation)
-- timestamp
-- target_location_name (optional, e.g., "Central Park")
-
-#### **10. Wallets** (Tracking user’s virtual balance)
-
-- **wallet_id** (Primary Key)
-- user_id (Foreign Key - reference to the `Users` table)
-- balance (total amount of virtual currency or points)
-- transaction_history (JSON or array with transaction records)
-- last_transaction_date
-- transaction_type (e.g., points earned, redeemed, gift sent)
-
-#### **11. Gifts** (A special form of Geo-drops; virtual items)
-
-- **gift_id** (Primary Key)
-- gift_type (e.g., virtual coin, badge, item)
-- sender_user_id (Foreign Key - reference to the `Users` table)
-- recipient_user_id (Foreign Key - reference to the `Users` table)
-- date_sent
-- gift_status (pending, delivered)
-
----
-
-### Relationships and Business Logic
-
-- **User-Event Relationship:** Users can create and participate in events. The `Events` table stores which users are the event organizers, and the `Participants` table can be used for many-to-many relationships between users and events.
-- **User-Rank Relationship:** Users are ranked based on their step count, challenge participation, or achievements. You can calculate the rank dynamically based on user activity.
-- **Geo-drops and Wallets:** Users can leave geo-drops (images, voice notes, text, gifts) and interact with other users' geo-drops. Some geo-drops might involve sending gifts, which are tracked in the `Wallets` table for transaction history.
-- **Social Connections:** `Follows`, `Chats`, and `Comments` establish the social networking features of your app. Users can follow other users, chat with them, or leave comments on events or geo-drops.
-
----
-
-### Suggested Additions for Future Features:
-
-1. **Push Notifications** - A schema for managing notifications for users about events, geo-drops, steps milestones, etc.
-
-   - **notification_id** (Primary Key)
-   - **user_id** (Foreign Key - reference to the `Users` table)
-   - **type** (e.g., event reminder, new geo-drop, new message)
-   - **message_content**
-   - **status** (unread, read)
-   - **timestamp**
-
-2. **Achievements** - Users can earn achievements based on their activity.
-
-   - **achievement_id** (Primary Key)
-   - **user_id** (Foreign Key - reference to the `Users` table)
-   - **name** (e.g., "100k Steps")
-   - **description**
-   - **earned_at** (timestamp)
-
-3. **User Preferences** - Schema to manage user settings (notifications, privacy settings, etc.)
-
-   - **user_id** (Foreign Key - reference to the `Users` table)
-   - **preference_key**
-   - **preference_value**
-
-4. **Challenges & Rewards System** - This system will encourage user participation.
-   - **challenge_id** (Primary Key)
-   - **challenge_name**
-   - **description**
-   - **reward_type** (e.g., points, badge, discount)
-   - **active_period** (start_date, end_date)
-   - **participants** (array of user IDs or many-to-many relationship)
-
----
-
-By expanding on these entities and relationships, you'll have a flexible and scalable schema to support user interactions, rankings, and geolocation-based features while keeping track of wallets and user activity.
-
-Does this expansion align with your app's vision, or are there any specific areas you'd like to adjust or expand further?
+Let me know if you need more details!
